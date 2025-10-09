@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>डिजिटल अवकाश आवेदन पत्र (UPRVUNL/UPJVNL)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', 'Mangal', Arial, sans-serif;
+            margin: 10px;
+            padding: 10px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        #container {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: auto;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .form-section {
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .preview-section {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 6px;
+            line-height: 1.4;
+            z-index: 2;
+        }
+        .hidden {
+            display: none;
+        }
+        h2 {
+            font-size: 20px;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .intro-text, .footer-text {
+            background-color: #e8f0fe;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #444;
+            border-left: 3px solid #1a73e8;
+        }
+        .footer-text {
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .footer-text a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #ffffff;
+            z-index: 3;
+            position: relative;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 3px rgba(26, 115, 232, 0.3);
+        }
+        .right {
+            text-align: right;
+        }
+        .btn {
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 8px;
+            margin-right: 6px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            min-width: 110px;
+            display: inline-block;
+            z-index: 4;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-generate {
+            background-color: #28a745;
+        }
+        .btn-generate:hover {
+            background-color: #218838;
+        }
+        .btn-print {
+            background-color: #1a73e8;
+        }
+        .btn-print:hover {
+            background-color: #1557b0;
+        }
+        .btn-edit {
+            background-color: #ff9500;
+        }
+        .btn-edit:hover {
+            background-color: #e68a00;
+        }
+        .preview-section p {
+            margin: 6px 0;
+            font-size: 14px;
+        }
+        .preview-section strong {
+            color: #1a73e8;
+        }
+        @media print {
+            #container {
+                display: block;
+                max-width: 100%;
+                box-shadow: none;
+                padding: 0;
+            }
+            .form-section, .btn, .intro-text, .footer-text {
+                display: none;
+            }
+            .preview-section {
+                border: none;
+                box-shadow: none;
+                width: 100%;
+                padding: 0;
+                max-width: 100%;
+            }
+            .preview-section p {
+                margin: 6px 0;
+            }
+        }
+        @media screen and (max-width: 600px) {
+            body {
+                margin: 5px;
+                padding: 5px;
+            }
+            #container {
+                padding: 10px;
+            }
+            h2 {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            label {
+                font-size: 13px;
+            }
+            input, select {
+                font-size: 13px;
+                padding: 6px;
+                margin-bottom: 8px;
+            }
+            .intro-text, .footer-text {
+                font-size: 12px;
+                padding: 8px;
+                margin-bottom: 10px;
+            }
+            .footer-text {
+                font-size: 11px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 8px 12px;
+                min-width: 90px;
+            }
+            .preview-section {
+                padding: 10px;
+            }
+            .preview-section p {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div class="form-section" id="formSection">
+        <form id="leaveForm">
+            <h2>डिजिटल अवकाश आवेदन पत्र (UPRVUNL/UPJVNL)</h2>
+            <p class="intro-text">यह डिजिटल फॉर्म उत्तर प्रदेश राज्य विद्युत उत्पादन निगम लिमिटेड (UPRVUNL) और उत्तर प्रदेश जल विद्युत निगम लिमिटेड (UPJVNL) के कर्मचारियों के लिए है। इसका उद्देश्य अवकाश आवेदन को डिजिटल रूप से जनरेट करना है ताकि कागज की बचत हो और पर्यावरण की रक्षा हो। कृपया सभी विवरण, जैसे अवकाश का प्रकार, अवधि, और संपर्क जानकारी, सटीक रूप से भरें।</p>
+            
+            <label>नाम:</label>
+            <input type="text" id="name" required>
+
+            <label>SAP ID:</label>
+            <input type="text" id="sapid" required>
+
+            <label>पद:</label>
+            <input type="text" id="post" placeholder="जैसे: Junior Engineer/AE/GM" required>
+
+            <label>पोस्टिंग लोकेशन:</label>
+            <input type="text" id="postingLocation" placeholder="जैसे: Operation Group-D DTPS or General" required>
+
+            <label>परियोजना:</label>
+            <input type="text" id="projectName" placeholder="जैसे: ETPS, HTPS Aligarh, JTPS Etah" required>
+
+            <label>विभाग/सर्कल:</label>
+            <input type="text" id="divisionCircle" placeholder="जैसे: C&I MD-I DTPS or BMD-II ETPS" required>
+
+            <label>रिपोर्टिंग अधिकारी का पद:</label>
+            <input type="text" id="reportingOfficerPost" placeholder="जैसे: Executive Engineer/Assistant Engineer/SE" required>
+
+            <label>अवकाश का प्रकार:</label>
+            <select id="leaveType" required>
+                <option value="" disabled selected>अवकाश का प्रकार चुनें</option>
+                <option value="आकस्मिक अवकाश (CL)">आकस्मिक अवकाश (CL)</option>
+                <option value="अर्जित अवकाश (EL)">अर्जित अवकाश (EL)</option>
+                <option value="चिकित्सा अवकाश (ML)">चिकित्सा अवकाश (ML)</option>
+                <option value="प्रसूति अवकाश (Maternity Leave)">प्रसूति अवकाश (Maternity Leave)</option>
+                <option value="पितृत्व अवकाश (Paternity Leave)">पितृत्व अवकाश (Paternity Leave)</option>
+                <option value="अवैतनिक अवकाश (LWP)">अवैतनिक अवकाश (LWP)</option>
+                <option value="विशेष अवकाश (Special Leave)">विशेष अवकाश (Special Leave)</option>
+                <option value="अध्ययन अवकाश (Study Leave)">अध्ययन अवकाश (Study Leave)</option>
+            </select>
+
+            <label>अवकाश के दिन:</label>
+            <input type="text" id="leaveDays" placeholder="जैसे: 1 दिन or 6 घंटे" required>
+
+            <label>अवकाश की अवधि तिथियाँ:</label>
+            <input type="text" id="leaveDurationDates" placeholder="जैसे: 12/12/2025 or 12/12/2025 से 15/12/2025" required>
+
+            <label>अवकाश के समय स्थान:</label>
+            <input type="text" id="leaveLocation" required>
+
+            <label>आवेदन दिनांक:</label>
+            <input type="text" id="appDate" placeholder="जैसे: 09/10/2025" required>
+
+            <label>संपर्क नंबर:</label>
+            <input type="text" id="contactNumber" required>
+
+            <button type="button" class="btn btn-generate" onclick="generateApplication()">📄 आवेदन जनरेट करें</button>
+            <h6 style="text-align: center; color: #777; margin-top: 10px;">@chairyfoundation</h6>
+            <p class="footer-text">Developed by Chairy Foundation, Bareilly, Uttar Pradesh, India, this digital leave application form is designed to save paper and protect the environment. All our income is dedicated to education and environmental welfare. We provide digital education solutions, software development, cybercrime training, and in-house software solutions. Support us through donations! Contact: <a href="mailto:poonam@chairyfoundation.com">poonam@chairyfoundation.com</a> | Website: <a href="http://www.chairyfoundation.com" target="_blank">www.chairyfoundation.com</a>.</p>
+        </form>
+    </div>
+
+    <div class="preview-section hidden" id="applicationPreview">
+        <p><strong>सेवा में,</strong><br>
+        <span id="applicantReportingOfficerPost"></span>,<br>
+        <span id="applicantDivisionCircle"></span>,<br>
+        <span id="applicantProjectName"></span>।</p>
+
+        <p><strong>विषय:</strong> <span id="applicantLeaveType"></span> स्वीकृत करने हेतु आवेदन।</p>
+
+        <p>महोदय,</p>
+        <p>नम्र निवेदन है कि मैं <span id="applicantName"></span>, <span id="applicantPost"></span>, <span id="applicantPostingLocation"></span>, <span id="applicantDivisionCircleInline"></span>, <span id="applicantProjectNameInline"></span> में कार्यरत हूँ। मुझे दिनांक <span id="applicantLeaveDurationDates"></span> को व्यक्तिगत कारणों से <span id="applicantLeaveDays"></span> की अवधि के लिए <span id="applicantLeaveTypeInline"></span> की आवश्यकता है। अवकाश के दौरान मैं <span id="applicantLeaveLocation"></span> पर रहूँगा।</p>
+        <p>अतः आपसे अनुरोध है कि उपरोक्त दिनांक को मुझे <span id="applicantLeaveTypeRequest"></span> स्वीकृत करने की कृपा करें।</p>
+        <p>आवेदन दिनांक: <span id="applicationDate"></span></p>
+
+        <div class="right">
+            <p>भवदीय,</p>
+            <p><strong><span id="applicantNameRight"></span></strong></p>
+            <p><span id="applicantPostRight"></span>, <span id="applicantPostingLocationRight"></span>, <span id="applicantDivisionCircleRight"></span>, <span id="applicantProjectNameRight"></span></p>
+            <p>SAP ID: <span id="applicantSAP"></span></p>
+            <p>संपर्क नंबर: <span id="applicantContactNumber"></span></p>
+        </div>
+
+        <button class="btn btn-print" onclick="window.print()">🖨️ प्रिंट करें</button>
+        <button class="btn btn-edit" onclick="editForm()">✏️ संपादित करें</button>
+    </div>
+</div>
+
+<script>
+    function generateApplication() {
+        // Get values or set defaults to prevent empty preview
+        const name = document.getElementById("name").value || "नाम";
+        const sapid = document.getElementById("sapid").value || "SAP ID";
+        const post = document.getElementById("post").value || "पद";
+        const postingLocation = document.getElementById("postingLocation").value || "पोस्टिंग लोकेशन";
+        const projectName = document.getElementById("projectName").value || "परियोजना";
+        const divisionCircle = document.getElementById("divisionCircle").value || "विभाग/सर्कल";
+        const reportingOfficerPost = document.getElementById("reportingOfficerPost").value || "रिपोर्टिंग अधिकारी का पद";
+        const leaveType = document.getElementById("leaveType").value || "अवकाश का प्रकार";
+        const leaveDays = document.getElementById("leaveDays").value || "अवकाश के दिन";
+        const leaveDurationDates = document.getElementById("leaveDurationDates").value || "अवकाश की अवधि तिथियाँ";
+        const leaveLocation = document.getElementById("leaveLocation").value || "अवकाश के समय स्थान";
+        const appDate = document.getElementById("appDate").value || "आवेदन दिनांक";
+        const contactNumber = document.getElementById("contactNumber").value || "संपर्क नंबर";
+
+        // Update preview
+        document.getElementById("applicantName").textContent = name;
+        document.getElementById("applicantSAP").textContent = sapid;
+        document.getElementById("applicantPost").textContent = post;
+        document.getElementById("applicantPostingLocation").textContent = postingLocation;
+        document.getElementById("applicantPostingLocationRight").textContent = postingLocation;
+        document.getElementById("applicantProjectName").textContent = projectName;
+        document.getElementById("applicantProjectNameInline").textContent = projectName;
+        document.getElementById("applicantProjectNameRight").textContent = projectName;
+        document.getElementById("applicantDivisionCircle").textContent = divisionCircle;
+        document.getElementById("applicantDivisionCircleInline").textContent = divisionCircle;
+        document.getElementById("applicantDivisionCircleRight").textContent = divisionCircle;
+        document.getElementById("applicantReportingOfficerPost").textContent = reportingOfficerPost;
+        document.getElementById("applicantLeaveType").textContent = leaveType;
+        document.getElementById("applicantLeaveTypeInline").textContent = leaveType;
+        document.getElementById("applicantLeaveTypeRequest").textContent = leaveType;
+        document.getElementById("applicantLeaveDays").textContent = leaveDays;
+        document.getElementById("applicantLeaveDurationDates").textContent = leaveDurationDates;
+        document.getElementById("applicantLeaveLocation").textContent = leaveLocation;
+        document.getElementById("applicationDate").textContent = appDate;
+        document.getElementById("applicantContactNumber").textContent = contactNumber;
+
+        document.getElementById("applicantNameRight").textContent = name;
+        document.getElementById("applicantPostRight").textContent = post;
+
+        // Hide form and show preview
+        document.getElementById("formSection").classList.add("hidden");
+        document.getElementById("applicationPreview").classList.remove("hidden");
+        document.getElementById("container").style.maxWidth = "700px";
+    }
+
+    function editForm() {
+        // Hide preview and show form
+        document.getElementById("applicationPreview").classList.add("hidden");
+        document.getElementById("formSection").classList.remove("hidden");
+        document.getElementById("container").style.maxWidth = "700px";
+    }
+</script>
+
+</body>
+</html>
