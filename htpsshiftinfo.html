@@ -2,96 +2,128 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>HTPS Exact Shift Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon | Stay Tuned</title>
     <style>
-        body { font-family: sans-serif; background-color: #eef2f3; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
-        h2 { color: #2c3e50; }
-        input { width: 80%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { background: #2980b9; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 86%; font-size: 16px; }
-        #output { margin-top: 25px; padding: 20px; border-radius: 10px; display: none; line-height: 1.6; }
-        .duty { font-size: 22px; font-weight: bold; color: #27ae60; display: block; }
-        .rest { color: #7f8c8d; font-size: 20px; }
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        /* Countdown Timer Styling */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .time-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 100px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .time-box span {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        /* Newsletter Input */
+        .newsletter input {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            width: 250px;
+            outline: none;
+        }
+
+        .newsletter button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            background-color: #ff7e5f;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            margin-left: -40px;
+        }
+
+        .newsletter button:hover {
+            background-color: #feb47b;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .countdown { gap: 10px; }
+            .time-box { min-width: 70px; padding: 10px; }
+            .newsletter input { width: 100%; margin-bottom: 10px; }
+            .newsletter button { margin-left: 0; width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>HTPS Shift Finder</h2>
-    <p>Date aur Time select karein:</p>
-    <input type="date" id="targetDate" value="2026-01-01">
-    <input type="time" id="targetTime" value="08:00">
-    <br>
-    <button onclick="findExactShift()">Click Here </button>
+    <div class="container">
+        <h1>COMING SOON</h1>
+        <p>Love you visitor</p>
 
-    <div id="output"></div>
-</div>
+        <div class="countdown">
+            <div class="time-box">
+                <span id="days">15</span>
+                Days
+            </div>
+            <div class="time-box">
+                <span id="hours">23</span>
+                Hours
+            </div>
+            <div class="time-box">
+                <span id="minutes">45</span>
+                Mins
+            </div>
+        </div>
 
-<script>
-    function findExactShift() {
-        const dVal = document.getElementById('targetDate').value;
-        const tVal = document.getElementById('targetTime').value;
-        if(!dVal || !tVal) return alert("Date/Time bharein");
-
-        let [h, m] = tVal.split(':').map(Number);
-        let dateObj = new Date(dVal);
-
-        // Shift Category Selection
-        let shiftCategory = "";
-        if (h >= 6 && h < 14) shiftCategory = "M";
-        else if (h >= 14 && h < 22) shiftCategory = "E";
-        else {
-            shiftCategory = "N";
-            if (h < 6) dateObj.setDate(dateObj.getDate() - 1); // 22:00 se 06:00 tak ek hi din ki shift
-        }
-
-        // 12-Day Cycle Logic (Based on 1st Jan 2026)
-        const ref = new Date('2026-01-01');
-        const diff = Math.floor((dateObj - ref) / (1000 * 60 * 60 * 24));
-        let dayIndex = ((diff % 12) + 12) % 12;
-
-        // Shift Patterns from PDF 
-        const data = {
-            "A": ["E1","E2","E3","R","M1","M2","M3","N1","N2","N3","R","R"],
-            "B": ["N2","N3","R","E1","E2","E3","R","M1","M2","M3","R","N1"],
-            "C": ["R","M1","M2","M3","R","N1","N2","N3","R","E1","E2","E3"],
-            "D": ["M3","R","N1","N2","N3","R","E1","E2","E3","R","M1","M2"]
-        };
-
-        // Mapping for labels
-        const labels = {
-            "E1": "First Evening", "E2": "Second Evening", "E3": "Third Evening",
-            "M1": "First Morning", "M2": "Second Morning", "M3": "Third Morning",
-            "N1": "First Night", "N2": "Second Night", "N3": "Third Night",
-            "R": "Rest Day"
-        };
-
-        let activeGroup = "None";
-        let exactShiftName = "";
-
-        for (let grp in data) {
-            let shiftCode = data[grp][dayIndex];
-            if (shiftCode.startsWith(shiftCategory)) {
-                activeGroup = "Group " + grp;
-                exactShiftName = labels[shiftCode];
-                break;
-            }
-        }
-
-        const out = document.getElementById('output');
-        out.style.display = "block";
-        out.style.backgroundColor = "#f9f9f9";
-        
-        if(activeGroup !== "None") {
-            out.innerHTML = `Time Slot: <b>${shiftCategory === 'M' ? 'Morning (06-14)' : shiftCategory === 'E' ? 'Evening (14-22)' : 'Night (22-06)'}</b><br>` +
-                            `Current Duty: <span class="duty">${activeGroup}</span>` +
-                            `Shift Detail: <b>${exactShiftName}</b>`;
-        } else {
-            out.innerHTML = `<span class="rest">Is samay sabhi groups ka Changeover ya Rest chal raha hai.</span>`;
-        }
-    }
-</script>
+        <div class="newsletter">
+            <input type="email" placeholder="Apna email darj karein...">
+            <button>Notify Me</button>
+        </div>
+    </div>
 
 </body>
 </html>
-
