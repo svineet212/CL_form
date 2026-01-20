@@ -1,233 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Harduaganj TPS Shift Checker 2026</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <style>
-    body {
-      background: linear-gradient(145deg, #e6f0fa 0%, #f8f9fa 100%);
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    .card {
-      border: none;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.10);
-      margin-bottom: 2rem;
-    }
-    .card-header {
-      background: linear-gradient(90deg, #0d6efd, #0b5ed7);
-      color: white;
-      padding: 1.5rem;
-      text-align: center;
-      font-weight: 600;
-    }
-    .form-label {
-      font-weight: 600;
-      color: #2c3e50;
-    }
-    .btn-check-shift {
-      font-size: 1.25rem;
-      padding: 1rem;
-      font-weight: bold;
-      border-radius: 12px;
-      transition: all 0.2s;
-    }
-    .btn-check-shift:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(13,110,253,0.3);
-    }
-    .shift-badge {
-      font-size: 1.1rem;
-      padding: 0.7em 1.4em;
-      border-radius: 999px;
-      font-weight: 700;
-      display: inline-block;
-      margin: 0.4rem 0;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
-    }
-    .morning    { background: #ffeb3b; color: #1a1a1a; }
-    .evening    { background: #ff9800; color: white; }
-    .night      { background: #1a237e; color: white; }
-    .rest       { background: #27ae60; color: white; }
-    .info-item {
-      padding: 1.2rem 0;
-      border-bottom: 1px solid #e9ecef;
-    }
-    .info-item:last-child { border-bottom: none; }
-    .time-display {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #0d6efd;
-    }
-    .footer-developed {
-      text-align: center;
-      padding: 1.5rem 1rem;
-      color: #6c757d;
-      font-size: 0.95rem;
-      background: #f8f9fa;
-      border-top: 1px solid #dee2e6;
-    }
-    .footer-developed strong {
-      color: #343a40;
-    }
-    @media (max-width: 576px) {
-      .card-body { padding: 1.6rem 1.2rem; }
-      h4 { font-size: 1.45rem; line-height: 1.3; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>HTPS Exact Shift Finder</title>
+    <style>
+        body { font-family: sans-serif; background-color: #eef2f3; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+        h2 { color: #2c3e50; }
+        input { width: 80%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #2980b9; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 86%; font-size: 16px; }
+        #output { margin-top: 25px; padding: 20px; border-radius: 10px; display: none; line-height: 1.6; }
+        .duty { font-size: 22px; font-weight: bold; color: #27ae60; display: block; }
+        .rest { color: #7f8c8d; font-size: 20px; }
+    </style>
 </head>
 <body>
 
-<div class="container py-4 py-sm-5" style="max-width: 560px;">
+<div class="card">
+    <h2>HTPS Shift Finder</h2>
+    <p>Date aur Time select karein:</p>
+    <input type="date" id="targetDate" value="2026-01-01">
+    <input type="time" id="targetTime" value="08:00">
+    <br>
+    <button onclick="findExactShift()">Pata Karein</button>
 
-  <div class="card mx-auto">
-    <div class="card-header">
-      <h4>Harduaganj Thermal Power Station<br>Shift Checker</h4>
-    </div>
-
-    <div class="card-body px-4 px-sm-5 py-4">
-      <div class="row g-3 mb-4">
-        <div class="col-7">
-          <label class="form-label">Date</label>
-          <input type="date" class="form-control form-control-lg" id="date" min="2026-01-01" max="2026-12-31"/>
-        </div>
-        <div class="col-5">
-          <label class="form-label">Time (IST)</label>
-          <input type="time" class="form-control form-control-lg" id="time"/>
-        </div>
-      </div>
-
-      <button class="btn btn-primary btn-lg w-100 btn-check-shift" onclick="checkShift()">
-        Check Current Shift
-      </button>
-
-      <div id="result" class="mt-4"></div>
-    </div>
-  </div>
-
-  <div class="footer-developed">
-    <strong>Developed by Chairy Foundation</strong><br>
-    <small>Simple & fast shift information for all staff</small>
-  </div>
-
+    <div id="output"></div>
 </div>
 
 <script>
-  const groups = {
-    A: ['E1','E2','E3','R','M1','M2','M3','R','N1','N2','N3','R'],
-    B: ['N2','N3','R','E1','E2','E3','R','M1','M2','M3','R','N1'],
-    C: ['R','M1','M2','M3','R','N1','N2','N3','R','E1','E2','E3'],
-    D: ['M3','R','N1','N2','N3','R','E1','E2','E3','R','M1','M2']
-  };
+    function findExactShift() {
+        const dVal = document.getElementById('targetDate').value;
+        const tVal = document.getElementById('targetTime').value;
+        if(!dVal || !tVal) return alert("Date/Time bharein");
 
-  function getCyclePosition(y, m, d) {
-    const date = new Date(y, m-1, d);
-    const jan1 = new Date(y, 0, 1);
-    const doy = Math.floor((date - jan1) / 86400000) + 1;
-    return (doy - 1) % 12;
-  }
+        let [h, m] = tVal.split(':').map(Number);
+        let dateObj = new Date(dVal);
 
-  function getShifts(y, m, d) {
-    const pos = getCyclePosition(y, m, d);
-    return {
-      A: groups.A[pos],
-      B: groups.B[pos],
-      C: groups.C[pos],
-      D: groups.D[pos]
-    };
-  }
+        // Shift Category Selection
+        let shiftCategory = "";
+        if (h >= 6 && h < 14) shiftCategory = "M";
+        else if (h >= 14 && h < 22) shiftCategory = "E";
+        else {
+            shiftCategory = "N";
+            if (h < 6) dateObj.setDate(dateObj.getDate() - 1); // 22:00 se 06:00 tak ek hi din ki shift
+        }
 
-  function getShiftDisplay(code) {
-    if (code === 'R') return { text: 'Rest Day', icon: '🟢', cls: 'rest' };
+        // 12-Day Cycle Logic (Based on 1st Jan 2026)
+        const ref = new Date('2026-01-01');
+        const diff = Math.floor((dateObj - ref) / (1000 * 60 * 60 * 24));
+        let dayIndex = ((diff % 12) + 12) % 12;
 
-    const type = code[0];
-    const num  = code[1];
-    let name = type === 'M' ? 'Morning' : type === 'E' ? 'Evening' : 'Night';
-    let time = type === 'M' ? '06:00–14:00' : type === 'E' ? '14:00–22:00' : '22:00–06:00';
+        // Shift Patterns from PDF 
+        const data = {
+            "A": ["E1","E2","E3","R","M1","M2","M3","N1","N2","N3","R","R"],
+            "B": ["N2","N3","R","E1","E2","E3","R","M1","M2","M3","R","N1"],
+            "C": ["R","M1","M2","M3","R","N1","N2","N3","R","E1","E2","E3"],
+            "D": ["M3","R","N1","N2","N3","R","E1","E2","E3","R","M1","M2"]
+        };
 
-    let cls = type === 'M' ? 'morning' : type === 'E' ? 'evening' : 'night';
-    let icon = type === 'M' ? '🌅' : type === 'E' ? '🌆' : '🌙';
+        // Mapping for labels
+        const labels = {
+            "E1": "First Evening", "E2": "Second Evening", "E3": "Third Evening",
+            "M1": "First Morning", "M2": "Second Morning", "M3": "Third Morning",
+            "N1": "First Night", "N2": "Second Night", "N3": "Third Night",
+            "R": "Rest Day"
+        };
 
-    return { text: `${name} ${num} (${time})`, icon, cls };
-  }
+        let activeGroup = "None";
+        let exactShiftName = "";
 
-  function checkShift() {
-    const now = new Date();
-    let y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate();
-    let h = now.getHours(), minn = now.getMinutes();
+        for (let grp in data) {
+            let shiftCode = data[grp][dayIndex];
+            if (shiftCode.startsWith(shiftCategory)) {
+                activeGroup = "Group " + grp;
+                exactShiftName = labels[shiftCode];
+                break;
+            }
+        }
 
-    const dateStr = document.getElementById('date').value;
-    const timeStr = document.getElementById('time').value;
-
-    if (dateStr) [y, m, d] = dateStr.split('-').map(Number);
-    else document.getElementById('date').value = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-
-    if (timeStr) [h, minn] = timeStr.split(':').map(Number);
-    else document.getElementById('time').value = `${String(h).padStart(2,'0')}:${String(minn).padStart(2,'0')}`;
-
-    let shiftType = (h >= 22 || h < 6) ? 'N' : (h >= 14) ? 'E' : 'M';
-
-    const shifts = getShifts(y, m, d);
-    let currentG = '', restG = '';
-    for (let g of ['A','B','C','D']) {
-      if (shifts[g]?.[0] === shiftType) currentG = g;
-      if (shifts[g] === 'R') restG = g;
+        const out = document.getElementById('output');
+        out.style.display = "block";
+        out.style.backgroundColor = "#f9f9f9";
+        
+        if(activeGroup !== "None") {
+            out.innerHTML = `Time Slot: <b>${shiftCategory === 'M' ? 'Morning (06-14)' : shiftCategory === 'E' ? 'Evening (14-22)' : 'Night (22-06)'}</b><br>` +
+                            `Current Duty: <span class="duty">${activeGroup}</span>` +
+                            `Shift Detail: <b>${exactShiftName}</b>`;
+        } else {
+            out.innerHTML = `<span class="rest">Is samay sabhi groups ka Changeover ya Rest chal raha hai.</span>`;
+        }
     }
-
-    let prevG = '', prevCode = '';
-    const prevShiftType = shiftType === 'M' ? 'N' : shiftType === 'E' ? 'M' : 'E';
-    const prevDate = (shiftType === 'M') ? new Date(y, m-1, d-1) : new Date(y, m-1, d);
-    const prevShifts = getShifts(prevDate.getFullYear(), prevDate.getMonth()+1, prevDate.getDate());
-    for (let g of ['A','B','C','D']) {
-      if (prevShifts[g]?.[0] === prevShiftType) { prevG = g; prevCode = prevShifts[g]; break; }
-    }
-
-    let nextG = '', nextCode = '';
-    const nextShiftType = shiftType === 'M' ? 'E' : shiftType === 'E' ? 'N' : 'M';
-    const nextDate = (shiftType === 'N') ? new Date(y, m-1, d+1) : new Date(y, m-1, d);
-    const nextShifts = getShifts(nextDate.getFullYear(), nextDate.getMonth()+1, nextDate.getDate());
-    for (let g of ['A','B','C','D']) {
-      if (nextShifts[g]?.[0] === nextShiftType) { nextG = g; nextCode = nextShifts[g]; break; }
-    }
-
-    const curr = getShiftDisplay(shifts[currentG]);
-    const prev = getShiftDisplay(prevCode);
-    const next = getShiftDisplay(nextCode);
-
-    document.getElementById('result').innerHTML = `
-      <div class="text-center mb-4">
-        <div class="time-display">${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/2026  ${String(h).padStart(2,'0')}:${String(minn).padStart(2,'0')}</div>
-      </div>
-
-      <div class="info-item">
-        <strong>Current Shift:</strong><br>
-        <span class="shift-badge ${curr.cls}">${curr.icon} Group ${currentG} – ${curr.text}</span>
-      </div>
-
-      <div class="info-item">
-        <strong>Handed Over By:</strong><br>
-        <span class="shift-badge ${prev.cls}">${prev.icon} Group ${prevG} – ${prev.text}</span>
-      </div>
-
-      <div class="info-item">
-        <strong>Next Incoming:</strong><br>
-        <span class="shift-badge ${next.cls}">${next.icon} Group ${nextG} – ${next.text}</span>
-      </div>
-
-      <div class="info-item">
-        <strong>On Rest Today:</strong><br>
-        <span class="shift-badge rest">🟢 Group ${restG} – Rest Day</span>
-      </div>
-    `;
-  }
-
-  // Auto show current shift when page opens
-  window.onload = checkShift;
 </script>
-</body>
 
+</body>
 </html>
