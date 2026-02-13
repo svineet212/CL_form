@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instrument Location Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    #status {
+      color: #d32f2f;
+      font-weight: bold;
+    }
+    #result {
+      background: #f0f8ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #e0f7fa;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Instrument Location Tracker</h2>
+  <p>यह टूल आपको इंस्ट्रूमेंट्स की लोकेशन और हाइट रिकॉर्ड करने देता है। लोकेशन पर जाकर ऐड करें, और बाद में देखें/नेविगेट करें।</p>
+  
+  <button onclick="addInstrument()">नया Instrument ऐड करें</button>
+  <button onclick="viewInstruments()">सभी Instruments देखें</button>
+  <button onclick="clearData()">सभी डेटा डिलीट करें</button>
+  
+  <p id="status">Status: तैयार...</p>
+  
+  <div id="result"></div>
+
+  <script>
+    const STORAGE_KEY = 'instruments';
+    
+    // लोकल स्टोरेज से डेटा लोड करें
+    function loadInstruments() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    }
+    
+    // डेटा सेव करें
+    function saveInstruments(instruments) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(instruments));
+    }
+    
+    // नया इंस्ट्रूमेंट ऐड करें
+    function addInstrument() {
+      const status = document.getElementById("status");
+      const result = document.getElementById("result");
+
+      status.textContent = "Location ले रहा हूँ... कृपया permission दें";
+      result.innerHTML = "";
+
+      if (!navigator.geolocation) {
+        status.textContent = "Error: तुम्हारे ब्राउज़र में Geolocation सपोर्ट नहीं है।";
+        return;
+      }
+
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
+
+      function success(pos) {
+        const crd = pos.coords;
+
+        // इंस्ट्रूमेंट का नाम पूछें
+        const name = prompt("इंस्ट्रूमेंट का नाम क्या है? (उदाहरण: Thermometer)");
+        if (!name) {
+          status.textContent = "ऑपरेशन कैंसल किया गया।";
+          return;
+        }
+
+        const instrument = {
+          name: name,
+          latitude: crd.latitude,
+          longitude: crd.longitude,
+          altitude: crd.altitude !== null ? crd.altitude : 'उपलब्ध नहीं',
+          accuracy: crd.accuracy,
+          altitudeAccuracy: crd.altitudeAccuracy !== null ? crd.altitudeAccuracy : 'उपलब्ध नहीं',
+          timestamp: new Date(pos.timestamp).toLocaleString()
+        };
+
+        // स्टोरेज में ऐड करें
+        const instruments = loadInstruments();
+        instruments.push(instrument);
+        saveInstruments(instruments);
+
+        status.textContent = "Instrument ऐड हो गया! ✓";
+
+        // समरी दिखाएं
+        let html = `
+          <b>Instrument Name:</b> ${instrument.name}<br>
+          <b>Latitude (अक्षांश):</b> ${instrument.latitude.toFixed(6)}°<br>
+          <b>Longitude (देशांतर):</b> ${instrument.longitude.toFixed(6)}°<br>
+          <b>Altitude / Height (ऊँचाई):</b> ${typeof instrument.altitude === 'number' ? instrument.altitude.toFixed(1) + ' मीटर (समुद्र तल से)' : instrument.altitude}<br>
+          <b>Accuracy (सटीकता):</b> ±${instrument.accuracy.toFixed(1)} मीटर<br>
+          <b>Altitude Accuracy:</b> ±${typeof instrument.altitudeAccuracy === 'number' ? instrument.altitudeAccuracy.toFixed(1) + ' मीटर' : instrument.altitudeAccuracy}<br>
+          <b>समय:</b> ${instrument.timestamp}<br><br>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${instrument.latitude},${instrument.longitude}" target="_blank">Google Maps पर नेविगेट करें</a>
+        `;
+
+        result.innerHTML = html;
+      }
+
+      function error(err) {
+        let msg = "Error: ";
+        switch(err.code) {
+          case err.PERMISSION_DENIED:
+            msg += "तुमने location permission नहीं दी।";
+            break;
+          case err.POSITION_UNAVAILABLE:
+            msg += "Location जानकारी उपलब्ध नहीं है।";
+            break;
+          case err.TIMEOUT:
+            msg += "Location लेने में बहुत समय लग रहा है।";
+            break;
+          default:
+            msg += "कोई अनजान त्रुटि। (" + err.message + ")";
+        }
+        status.textContent = msg;
+      }
+
+      navigator.geolocation.getCurrentPosition(success, error, options);
+    }
+
+    // सभी इंस्ट्रूमेंट्स दिखाएं
+    function viewInstruments() {
+      const result = document.getElementById("result");
+      const status = document.getElementById("status");
+      status.textContent = "सभी Instruments लोड हो रहे हैं...";
+      result.innerHTML = "";
+
+      const instruments = loadInstruments();
+      if (instruments.length === 0) {
+        result.innerHTML = "<p>कोई Instrument रिकॉर्ड नहीं है।</p>";
+        status.textContent = "Status: तैयार...";
+        return;
+      }
+
+      let html = "<h3>सभी Instruments:</h3><ul>";
+      instruments.forEach((inst, index) => {
+        html += `
+          <li>
+            <b>Name:</b> ${inst.name}<br>
+            <b>Latitude:</b> ${inst.latitude.toFixed(6)}°<br>
+            <b>Longitude:</b> ${inst.longitude.toFixed(6)}°<br>
+            <b>Altitude:</b> ${typeof inst.altitude === 'number' ? inst.altitude.toFixed(1) + ' m' : inst.altitude}<br>
+            <b>समय:</b> ${inst.timestamp}<br>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${inst.latitude},${inst.longitude}" target="_blank">Google Maps पर नेविगेट करें</a>
+          </li>
+        `;
+      });
+      html += "</ul>";
+      result.innerHTML = html;
+      status.textContent = "Status: तैयार...";
+    }
+
+    // सभी डेटा डिलीट करें
+    function clearData() {
+      if (confirm("क्या आप सभी डेटा डिलीट करना चाहते हैं?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        document.getElementById("status").textContent = "सभी डेटा डिलीट हो गया।";
+        document.getElementById("result").innerHTML = "";
+      }
+    }
+  </script>
+
+</body>
+</html>
