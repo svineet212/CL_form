@@ -3,71 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Simple Instrument Share</title>
+  <title>Instrument Location - Two Modes</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f9f9f9;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 30px;
-    }
-    button {
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 10px auto;
-      display: block;
-      width: 90%;
-      max-width: 400px;
-    }
-    #add-btn {
-      background: #4CAF50;
-      color: white;
-    }
-    #share-btn {
-      background: #25D366;
-      color: white;
-      font-weight: bold;
-    }
-    #status {
-      color: #d32f2f;
-      font-weight: bold;
-      margin: 20px 0;
-      min-height: 24px;
-    }
-    #result {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 20px auto;
-      max-width: 400px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      display: none;
-      text-align: left;
-    }
-    #result p {
-      margin: 8px 0;
-    }
-    a {
-      color: #0066cc;
-      text-decoration: none;
-    }
+    body {font-family: Arial, sans-serif; margin:0; padding:20px; background:#f9f9f9; text-align:center;}
+    h1 {color:#333; margin-bottom:30px;}
+    button {padding:15px 30px; font-size:18px; border:none; border-radius:8px; cursor:pointer; margin:10px auto; display:block; width:90%; max-width:400px;}
+    #high-btn {background:#4CAF50; color:white;}
+    #fast-btn {background:#2196F3; color:white;}
+    #share-btn {background:#25D366; color:white; font-weight:bold;}
+    #status {color:#d32f2f; font-weight:bold; margin:20px 0; min-height:40px; font-size:1.1em;}
+    #result {background:white; padding:20px; border-radius:10px; margin:20px auto; max-width:400px; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:none; text-align:left;}
+    #result p {margin:8px 0;}
+    a {color:#0066cc;}
   </style>
 </head>
 <body>
 
   <h1>Instrument Location Share</h1>
+  <p>Choose mode: High Accuracy (better but slower) or Fast (quick but approximate)</p>
   
-  <button id="add-btn" onclick="addInstrument()">Add Instrument</button>
+  <button id="high-btn" onclick="addInstrument(true)">High Accuracy Add</button>
+  <button id="fast-btn" onclick="addInstrument(false)">Fast Add (Low Accuracy)</button>
   
-  <div id="status">Ready...</div>
+  <div id="status">Ready... Choose a mode</div>
   
   <div id="result">
     <h3>Details</h3>
@@ -84,112 +42,120 @@
   <script>
     let instrument = null;
     let watchId = null;
-    let bestPos = null;
-    let bestAcc = Infinity;
+    let samples = [];
 
-    function addInstrument() {
+    function addInstrument(highAccuracy) {
       const status = document.getElementById('status');
       const result = document.getElementById('result');
+      samples = []; // Reset samples
 
-      status.textContent = 'Fetching best location... (wait 10-30 sec)';
+      const modeText = highAccuracy ? 'High Accuracy' : 'Fast';
+      status.textContent = `Mode: ${modeText}. Fetching...`;
       result.style.display = 'none';
-      bestPos = null;
-      bestAcc = Infinity;
 
       if (!navigator.geolocation) {
-        status.textContent = 'Geolocation not supported';
+        status.textContent = 'Error: Location not supported';
         return;
       }
 
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 0
-      };
+      if (highAccuracy) {
+        // --- HIGH ACCURACY LOGIC: 45 Second Averaging ---
+        let timeLeft = 45;
+        status.textContent = `Precise Mode: Collecting data for ${timeLeft}s... Please stay still.`;
+        
+        watchId = navigator.geolocation.watchPosition(
+          pos => {
+            // Sirf wahi points save karo jinki accuracy 30m se kam ho
+            if (pos.coords.accuracy < 30) {
+              samples.push({
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude,
+                alt: pos.coords.altitude,
+                acc: pos.coords.accuracy
+              });
+              status.textContent = `Scanning... ${samples.length} points collected. Accuracy: ±${pos.coords.accuracy.toFixed(1)}m`;
+            }
+          },
+          err => console.error(err),
+          { enableHighAccuracy: true, maximumAge: 0 }
+        );
 
-      watchId = navigator.geolocation.watchPosition(
-        pos => {
-          const acc = pos.coords.accuracy;
-          if (acc < bestAcc) {
-            bestAcc = acc;
-            bestPos = pos;
+        // Timer to countdown and finalize
+        const countdown = setInterval(() => {
+          timeLeft--;
+          if (timeLeft <= 0) {
+            clearInterval(countdown);
+            finalizeHighAccuracy();
+          } else if (samples.length > 0) {
+            status.textContent = `Wait ${timeLeft}s... Samples: ${samples.length} | Best: ±${Math.min(...samples.map(s=>s.acc)).toFixed(1)}m`;
           }
-          // Auto-stop after getting a decent fix or timeout will handle
-        },
-        err => {
-          status.textContent = 'Error: ' + (err.code === 1 ? 'Permission denied' : err.message);
-          cleanup();
-        },
-        options
-      );
+        }, 1000);
 
-      // After 30 seconds, use the best we have
-      setTimeout(() => {
-        if (bestPos) {
-          processPosition(bestPos);
-        } else {
-          status.textContent = 'Timeout - try again outdoors or check settings';
-          cleanup();
-        }
-      }, 30000);
+      } else {
+        // --- FAST MODE LOGIC ---
+        navigator.geolocation.getCurrentPosition(
+          pos => processPosition(pos.coords.latitude, pos.coords.longitude, pos.coords.altitude, pos.coords.accuracy, false),
+          err => { status.textContent = 'Error: ' + err.message; },
+          { enableHighAccuracy: false, timeout: 15000 }
+        );
+      }
     }
 
-    function processPosition(pos) {
-      cleanup();
+    function finalizeHighAccuracy() {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      
+      if (samples.length === 0) {
+        document.getElementById('status').textContent = "Error: No stable signal. Try again outdoors.";
+        return;
+      }
 
-      const crd = pos.coords;
+      // Averaging coordinates
+      const avgLat = samples.reduce((sum, s) => sum + s.lat, 0) / samples.length;
+      const avgLon = samples.reduce((sum, s) => sum + s.lon, 0) / samples.length;
+      const avgAlt = samples.filter(s => s.alt).length > 0 
+                     ? (samples.reduce((sum, s) => sum + (s.alt || 0), 0) / samples.filter(s => s.alt).length) 
+                     : null;
+      const bestAcc = Math.min(...samples.map(s => s.acc));
 
+      processPosition(avgLat, avgLon, avgAlt, bestAcc, true);
+    }
+
+    function processPosition(lat, lon, alt, acc, isHigh) {
       const name = prompt('Instrument name:');
       if (!name || !name.trim()) {
-        document.getElementById('status').textContent = 'Cancelled';
+        document.getElementById('status').textContent = 'Cancelled – no name';
         return;
       }
 
       instrument = {
         name: name.trim(),
-        lat: crd.latitude.toFixed(6),
-        lon: crd.longitude.toFixed(6),
-        alt: crd.altitude ? crd.altitude.toFixed(1) + ' m' : 'Not available',
-        acc: '±' + crd.accuracy.toFixed(0) + ' m',
-        time: new Date().toLocaleString()
+        lat: lat.toFixed(8), // High precision 8 decimals
+        lon: lon.toFixed(8),
+        alt: alt ? alt.toFixed(1) + ' m' : 'Not available',
+        acc: '±' + acc.toFixed(1) + ' m',
+        time: new Date().toLocaleString(),
+        mode: isHigh ? 'High Accuracy (Averaged)' : 'Fast'
       };
 
       document.getElementById('name').innerHTML = '<b>Name:</b> ' + instrument.name;
       document.getElementById('lat').innerHTML = '<b>Lat:</b> ' + instrument.lat;
       document.getElementById('lon').innerHTML = '<b>Lon:</b> ' + instrument.lon;
       document.getElementById('alt').innerHTML = '<b>Altitude:</b> ' + instrument.alt;
-      document.getElementById('acc').innerHTML = '<b>Accuracy:</b> ' + instrument.acc + ' (best available)';
+      document.getElementById('acc').innerHTML = '<b>Accuracy:</b> ' + instrument.acc + ' (' + instrument.mode + ')';
       document.getElementById('time').innerHTML = '<b>Time:</b> ' + instrument.time;
 
-      const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${instrument.lat},${instrument.lon}`;
+      const mapUrl = `https://www.google.com/maps?q=${instrument.lat},${instrument.lon}`;
       document.getElementById('maplink').href = mapUrl;
 
       document.getElementById('result').style.display = 'block';
-      document.getElementById('status').textContent = 'Done - share now';
-    }
-
-    function cleanup() {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
+      document.getElementById('status').textContent = `Success! Accuracy optimized using ${isHigh ? samples.length : 1} points.`;
     }
 
     function shareToWhatsApp() {
       if (!instrument) return;
-
-      const text = 
-`*Instrument Info*\n\n` +
-`Name: ${instrument.name}\n` +
-`Latitude: ${instrument.lat}\n` +
-`Longitude: ${instrument.lon}\n` +
-`Altitude: ${instrument.alt}\n` +
-`Accuracy: ${instrument.acc}\n` +
-`Time: ${instrument.time}\n\n` +
-`Google Maps: https://www.google.com/maps/dir/?api=1&destination=${instrument.lat},${instrument.lon}`;
-
-      const encoded = encodeURIComponent(text);
-      window.open('https://wa.me/?text=' + encoded, '_blank');
+      const mapUrl = `https://www.google.com/maps?q=${instrument.lat},${instrument.lon}`;
+      const text = `*Instrument Info (${instrument.mode})*\n\nName: ${instrument.name}\nLat: ${instrument.lat}\nLon: ${instrument.lon}\nAlt: ${instrument.alt}\nAcc: ${instrument.acc}\nTime: ${instrument.time}\n\nMaps: ${mapUrl}`;
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     }
   </script>
 
