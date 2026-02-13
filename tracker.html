@@ -1,181 +1,195 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Instrument Location Tracker</title>
+  <title>Simple Instrument Share</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
-    #status { color: #d32f2f; font-weight: bold; }
-    #result { background: #f0f8ff; padding: 15px; border-radius: 8px; margin-top: 15px; }
-    button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px 10px 5px 0; }
-    ul { list-style-type: none; padding: 0; }
-    li { background: #e0f7fa; margin: 10px 0; padding: 10px; border-radius: 5px; }
-    a { color: #007bff; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .share-btn { background: #25D366; color: white; border: none; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f9f9f9;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px auto;
+      display: block;
+      width: 90%;
+      max-width: 400px;
+    }
+    #add-btn {
+      background: #4CAF50;
+      color: white;
+    }
+    #share-btn {
+      background: #25D366;
+      color: white;
+      font-weight: bold;
+    }
+    #status {
+      color: #d32f2f;
+      font-weight: bold;
+      margin: 20px 0;
+      min-height: 24px;
+    }
+    #result {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 400px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: none;
+      text-align: left;
+    }
+    #result p {
+      margin: 8px 0;
+    }
+    a {
+      color: #0066cc;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Instrument Location Tracker</h2>
-  <p>लोकेशन पर जाकर इंस्ट्रूमेंट ऐड करें। फिर WhatsApp पर शेयर करें (सारी डिटेल्स + मैप लिंक एक साथ)।</p>
+  <h1>Instrument Location Share</h1>
   
-  <button onclick="addInstrument()">नया Instrument ऐड करें</button>
-  <button onclick="viewInstruments()">सभी Instruments देखें</button>
-  <button onclick="clearData()">सभी डेटा डिलीट करें</button>
+  <button id="add-btn" onclick="addInstrument()">Add Instrument</button>
   
-  <p id="status">Status: तैयार...</p>
+  <div id="status">Ready...</div>
   
-  <div id="result"></div>
+  <div id="result">
+    <h3>Details</h3>
+    <p id="name"></p>
+    <p id="lat"></p>
+    <p id="lon"></p>
+    <p id="alt"></p>
+    <p id="acc"></p>
+    <p id="time"></p>
+    <p><a id="maplink" href="#" target="_blank">Open in Google Maps</a></p>
+    <button id="share-btn" onclick="shareToWhatsApp()">Send to WhatsApp</button>
+  </div>
 
   <script>
-    const STORAGE_KEY = 'instruments';
-    
-    function loadInstruments() {
-      const data = localStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
-    }
-    
-    function saveInstruments(instruments) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(instruments));
-    }
-    
-    function addInstrument() {
-      const status = document.getElementById("status");
-      const result = document.getElementById("result");
+    let instrument = null;
+    let watchId = null;
+    let bestPos = null;
+    let bestAcc = Infinity;
 
-      status.textContent = "Location ले रहा हूँ... permission दें";
-      result.innerHTML = "";
+    function addInstrument() {
+      const status = document.getElementById('status');
+      const result = document.getElementById('result');
+
+      status.textContent = 'Fetching best location... (wait 10-30 sec)';
+      result.style.display = 'none';
+      bestPos = null;
+      bestAcc = Infinity;
 
       if (!navigator.geolocation) {
-        status.textContent = "Error: Geolocation सपोर्ट नहीं है।";
+        status.textContent = 'Geolocation not supported';
         return;
       }
 
       const options = {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 20000,
         maximumAge: 0
       };
 
-      function success(pos) {
-        const crd = pos.coords;
+      watchId = navigator.geolocation.watchPosition(
+        pos => {
+          const acc = pos.coords.accuracy;
+          if (acc < bestAcc) {
+            bestAcc = acc;
+            bestPos = pos;
+          }
+          // Auto-stop after getting a decent fix or timeout will handle
+        },
+        err => {
+          status.textContent = 'Error: ' + (err.code === 1 ? 'Permission denied' : err.message);
+          cleanup();
+        },
+        options
+      );
 
-        const name = prompt("इंस्ट्रूमेंट का नाम क्या है?");
-        if (!name) {
-          status.textContent = "कैंसल किया गया।";
-          return;
+      // After 30 seconds, use the best we have
+      setTimeout(() => {
+        if (bestPos) {
+          processPosition(bestPos);
+        } else {
+          status.textContent = 'Timeout - try again outdoors or check settings';
+          cleanup();
         }
-
-        const instrument = {
-          name: name,
-          latitude: crd.latitude,
-          longitude: crd.longitude,
-          altitude: crd.altitude !== null ? crd.altitude : 'उपलब्ध नहीं',
-          accuracy: crd.accuracy,
-          altitudeAccuracy: crd.altitudeAccuracy !== null ? crd.altitudeAccuracy : 'उपलब्ध नहीं',
-          timestamp: new Date(pos.timestamp).toLocaleString('hi-IN')
-        };
-
-        const instruments = loadInstruments();
-        instruments.push(instrument);
-        saveInstruments(instruments);
-
-        status.textContent = "Instrument ऐड हो गया! ✓";
-
-        showSummary(instrument, result);
-      }
-
-      function error(err) {
-        let msg = "Error: ";
-        switch(err.code) {
-          case err.PERMISSION_DENIED: msg += "Permission नहीं दी।"; break;
-          case err.POSITION_UNAVAILABLE: msg += "Location उपलब्ध नहीं।"; break;
-          case err.TIMEOUT: msg += "समय समाप्त।"; break;
-          default: msg += err.message;
-        }
-        status.textContent = msg;
-      }
-
-      navigator.geolocation.getCurrentPosition(success, error, options);
+      }, 30000);
     }
 
-    function showSummary(inst, container) {
-      const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${inst.latitude},${inst.longitude}`;
+    function processPosition(pos) {
+      cleanup();
 
-      let altText = typeof inst.altitude === 'number' ? `${inst.altitude.toFixed(1)} मीटर` : inst.altitude;
-      let altAcc = typeof inst.altitudeAccuracy === 'number' ? `±${inst.altitudeAccuracy.toFixed(1)} मीटर` : inst.altitudeAccuracy;
+      const crd = pos.coords;
 
-      let summary = `
-        <b>Instrument:</b> ${inst.name}<br>
-        <b>Latitude:</b> ${inst.latitude.toFixed(6)}°<br>
-        <b>Longitude:</b> ${inst.longitude.toFixed(6)}°<br>
-        <b>Altitude/Height:</b> ${altText} (Accuracy: ${altAcc})<br>
-        <b>Location Accuracy:</b> ±${inst.accuracy.toFixed(1)} मीटर<br>
-        <b>समय:</b> ${inst.timestamp}<br><br>
-        <a href="${mapLink}" target="_blank">Google Maps पर नेविगेट करें</a><br><br>
-      `;
-
-      // WhatsApp share link
-      const message = 
-        `*Instrument Details*\n\n` +
-        `नाम: ${inst.name}\n` +
-        `Latitude: ${inst.latitude.toFixed(6)}°\n` +
-        `Longitude: ${inst.longitude.toFixed(6)}°\n` +
-        `ऊँचाई (Altitude): ${altText}\n` +
-        `Location Accuracy: ±${inst.accuracy.toFixed(1)} m\n` +
-        `समय: ${inst.timestamp}\n\n` +
-        `Google Maps Link: ${mapLink}\n` +
-        `Direct Navigation: ${mapLink}`;
-
-      const encodedMsg = encodeURIComponent(message);
-      const waLink = `https://wa.me/?text=${encodedMsg}`;
-
-      summary += `<button class="share-btn" onclick="window.open('${waLink}', '_blank')">WhatsApp पर Share करें</button>`;
-
-      container.innerHTML = summary;
-    }
-
-    function viewInstruments() {
-      const result = document.getElementById("result");
-      const status = document.getElementById("status");
-      status.textContent = "लोड हो रहा है...";
-      result.innerHTML = "";
-
-      const instruments = loadInstruments();
-      if (instruments.length === 0) {
-        result.innerHTML = "<p>कोई Instrument नहीं है।</p>";
-        status.textContent = "Status: तैयार...";
+      const name = prompt('Instrument name:');
+      if (!name || !name.trim()) {
+        document.getElementById('status').textContent = 'Cancelled';
         return;
       }
 
-      let html = "<h3>सभी Instruments:</h3><ul>";
-      instruments.forEach(inst => {
-        const mapLink = `https://www.google.com/maps/dir/?api=1&destination=${inst.latitude},${inst.longitude}`;
-        let altText = typeof inst.altitude === 'number' ? `${inst.altitude.toFixed(1)} m` : inst.altitude;
+      instrument = {
+        name: name.trim(),
+        lat: crd.latitude.toFixed(6),
+        lon: crd.longitude.toFixed(6),
+        alt: crd.altitude ? crd.altitude.toFixed(1) + ' m' : 'Not available',
+        acc: '±' + crd.accuracy.toFixed(0) + ' m',
+        time: new Date().toLocaleString()
+      };
 
-        html += `
-          <li>
-            <b>${inst.name}</b><br>
-            Lat: ${inst.latitude.toFixed(6)} | Lon: ${inst.longitude.toFixed(6)}<br>
-            ऊँचाई: ${altText} | Accuracy: ±${inst.accuracy.toFixed(1)} m<br>
-            ${inst.timestamp}<br>
-            <a href="${mapLink}" target="_blank">Maps</a>
-          </li>
-        `;
-      });
-      html += "</ul>";
-      result.innerHTML = html;
-      status.textContent = "Status: तैयार...";
+      document.getElementById('name').innerHTML = '<b>Name:</b> ' + instrument.name;
+      document.getElementById('lat').innerHTML = '<b>Lat:</b> ' + instrument.lat;
+      document.getElementById('lon').innerHTML = '<b>Lon:</b> ' + instrument.lon;
+      document.getElementById('alt').innerHTML = '<b>Altitude:</b> ' + instrument.alt;
+      document.getElementById('acc').innerHTML = '<b>Accuracy:</b> ' + instrument.acc + ' (best available)';
+      document.getElementById('time').innerHTML = '<b>Time:</b> ' + instrument.time;
+
+      const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${instrument.lat},${instrument.lon}`;
+      document.getElementById('maplink').href = mapUrl;
+
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('status').textContent = 'Done - share now';
     }
 
-    function clearData() {
-      if (confirm("सभी डेटा डिलीट करें?")) {
-        localStorage.removeItem(STORAGE_KEY);
-        document.getElementById("status").textContent = "डेटा डिलीट हो गया।";
-        document.getElementById("result").innerHTML = "";
+    function cleanup() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
       }
+    }
+
+    function shareToWhatsApp() {
+      if (!instrument) return;
+
+      const text = 
+`*Instrument Info*\n\n` +
+`Name: ${instrument.name}\n` +
+`Latitude: ${instrument.lat}\n` +
+`Longitude: ${instrument.lon}\n` +
+`Altitude: ${instrument.alt}\n` +
+`Accuracy: ${instrument.acc}\n` +
+`Time: ${instrument.time}\n\n` +
+`Google Maps: https://www.google.com/maps/dir/?api=1&destination=${instrument.lat},${instrument.lon}`;
+
+      const encoded = encodeURIComponent(text);
+      window.open('https://wa.me/?text=' + encoded, '_blank');
     }
   </script>
 
