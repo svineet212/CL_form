@@ -4,86 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Akkaprints | Name Slip Catalog</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #25D366;
+            --primary: #25D366; /* WhatsApp Green */
             --primary-dark: #128C7E;
             --bg: #f0f4f8;
             --text: #333;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
 
-        body { background-color: #e5e5f7; color: var(--text); padding-bottom: 80px; /* नीचे बटन के लिए जगह */ }
+        body { 
+            background-color: #e5e5f7; 
+            color: var(--text); 
+            padding-bottom: 90px; /* नीचे बटन के लिए पर्याप्त जगह */ 
+        }
 
-        .header { background: #fff; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header h2 { font-size: 20px; color: #2c3e50; }
+        /* Top Header */
+        .header { 
+            background: #fff; 
+            padding: 15px; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .header h2 { font-size: 22px; color: #2c3e50; font-weight: 600; }
+        .header p { font-size: 13px; color: #666; margin-top: 2px; }
 
         /* Catalog Images Container */
-        .catalog-container { max-width: 600px; margin: 0 auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .catalog-container img { width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: block; }
+        .catalog-container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        .catalog-container img { 
+            width: 100%; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+            display: block; 
+            background-color: #fff; /* इमेज लोड होने तक सफेद बैकग्राउंड */
+        }
 
         /* Sticky Bottom Bar */
         .bottom-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 15px 20px;
-            box-shadow: 0 -2px 15px rgba(0,0,0,0.1); display: flex; justify-content: center; z-index: 20;
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: #fff; 
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1); 
+            display: flex; 
+            justify-content: center; 
+            z-index: 20;
         }
 
         .order-btn {
-            background: var(--primary); color: #fff; border: none; padding: 14px 30px; font-size: 16px;
-            font-weight: 600; border-radius: 30px; cursor: pointer; width: 100%; max-width: 400px;
-            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); transition: transform 0.2s;
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            padding: 15px 30px; 
+            font-size: 16px;
+            font-weight: 600; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            width: 100%; 
+            max-width: 400px;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); 
+            transition: transform 0.2s, background 0.3s;
         }
-        .order-btn:active { transform: scale(0.95); }
+        .order-btn:hover { background: var(--primary-dark); }
+        .order-btn:active { transform: scale(0.96); }
 
         /* Modal (Pop-up Form) Styles */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-            display: none; justify-content: center; align-items: flex-end; z-index: 30;
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.6);
+            display: none; 
+            justify-content: center; 
+            align-items: flex-end; 
+            z-index: 30;
+            backdrop-filter: blur(3px); /* पीछे का बैकग्राउंड थोड़ा ब्लर करने के लिए */
         }
         .modal-overlay.active { display: flex; }
 
         .modal-content {
-            background: #fff; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0;
-            padding: 25px 20px; animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto;
+            background: #fff; 
+            width: 100%; 
+            max-width: 500px; 
+            border-radius: 20px 20px 0 0;
+            padding: 25px 20px 30px 20px; 
+            animation: slideUp 0.3s ease-out; 
+            max-height: 90vh; 
+            overflow-y: auto;
         }
 
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes slideUp { 
+            from { transform: translateY(100%); } 
+            to { transform: translateY(0); } 
+        }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { font-size: 18px; }
-        .close-btn { background: none; border: none; font-size: 24px; color: #888; cursor: pointer; }
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-header h3 { font-size: 18px; color: #333; }
+        .close-btn { 
+            background: #f1f1f1; 
+            border: none; 
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 20px; 
+            color: #555; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
+        /* Form Inputs */
         .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #555; }
-        .input-group input {
-            width: 100%; padding: 12px; font-size: 15px; border: 1px solid #ddd;
-            border-radius: 8px; background: #f9f9f9; outline: none;
+        .input-group label { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: 500; 
+            margin-bottom: 6px; 
+            color: #555; 
         }
-        .input-group input:focus { border-color: var(--primary); background: #fff; }
+        .input-group input {
+            width: 100%; 
+            padding: 12px 15px; 
+            font-size: 16px; /* 16px मोबाइल में ऑटो-ज़ूम रोकता है */
+            border: 1px solid #ddd;
+            border-radius: 8px; 
+            background: #fafafa; 
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus { 
+            border-color: var(--primary); 
+            background: #fff; 
+            box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.1);
+        }
 
         .submit-btn {
-            width: 100%; background: var(--primary); color: #fff; border: none; padding: 15px;
-            font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; margin-top: 10px;
+            width: 100%; 
+            background: var(--primary); 
+            color: #fff; 
+            border: none; 
+            padding: 15px;
+            font-size: 16px; 
+            font-weight: 600; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin-top: 10px;
+            transition: background 0.3s;
         }
+        .submit-btn:hover { background: var(--primary-dark); }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h2>Akkaprints Catalog</h2>
-        <p style="font-size: 12px; color: #666;">नीचे डिज़ाइन देखें और अपना नंबर चुनें</p>
+        <p>नीचे डिज़ाइन देखें और अपना मनपसंद नंबर चुनें</p>
     </div>
 
     <div class="catalog-container">
-        <img src="https://github.com/svineet212/CL_form/blob/main/ns01.jpg" alt="Catalog Page 1" onerror="this.src='https://via.placeholder.com/600x800?text=Upload+Page+1+Image+Here'">
-        <img src="https://github.com/svineet212/CL_form/blob/main/ns02.jpg" alt="Catalog Page 2" onerror="this.src='https://via.placeholder.com/600x800?text=Upload+Page+2+Image+Here'">
-        <img src="https://github.com/svineet212/CL_form/blob/main/ns03.jpg" alt="Catalog Page 3" onerror="this.src='https://via.placeholder.com/600x800?text=Upload+Page+3+Image+Here'">
-        <img src="https://github.com/svineet212/CL_form/blob/main/ns04.jpg" alt="Catalog Page 4" onerror="this.src='https://via.placeholder.com/600x800?text=Upload+Page+4+Image+Here'">
-        <img src="https://github.com/svineet212/CL_form/blob/main/ns05.jpg" alt="Catalog Page 4" onerror="this.src='https://via.placeholder.com/600x800?text=Upload+Page+4+Image+Here'">
-        <img src="https://github.com/svineet212/CL_form/blob/main/ns06.jpg" alt="Catalog Page 4" onerror="this.src='https://via.placeholder.com/600x800?text=Upload+Page+4+Image+Here'">
+        <img src="https://raw.githubusercontent.com/svineet212/CL_form/main/ns01.jpg" alt="Catalog Page 1">
+        <img src="https://raw.githubusercontent.com/svineet212/CL_form/main/ns02.jpg" alt="Catalog Page 2">
+        <img src="https://raw.githubusercontent.com/svineet212/CL_form/main/ns03.jpg" alt="Catalog Page 3">
+        <img src="https://raw.githubusercontent.com/svineet212/CL_form/main/ns04.jpg" alt="Catalog Page 4">
+        <img src="https://raw.githubusercontent.com/svineet212/CL_form/main/ns05.jpg" alt="Catalog Page 5">
+        <img src="https://raw.githubusercontent.com/svineet212/CL_form/main/ns06.jpg" alt="Catalog Page 6">
     </div>
 
     <div class="bottom-bar">
@@ -100,32 +215,34 @@
             <form id="orderForm" onsubmit="processOrder(event)">
                 <div class="input-group">
                     <label>Design Number (डिज़ाइन नंबर)</label>
-                    <input type="number" id="designId" placeholder="उदा: 45" required>
+                    <input type="number" id="designId" placeholder="उदा: 12" required>
                 </div>
                 <div class="input-group">
-                    <label>Student Name</label>
+                    <label>Student Name (छात्र का नाम)</label>
                     <input type="text" id="name" placeholder="पूरा नाम" required>
                 </div>
                 <div class="input-group">
-                    <label>School Name</label>
+                    <label>School Name (स्कूल का नाम)</label>
                     <input type="text" id="school" placeholder="स्कूल का नाम" required>
                 </div>
-                <div class="input-group" style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label>Class</label>
+                
+                <div style="display: flex; gap: 15px;">
+                    <div class="input-group" style="flex: 1;">
+                        <label>Class (कक्षा)</label>
                         <input type="text" id="classVal" placeholder="कक्षा" required>
                     </div>
-                    <div style="flex: 1;">
-                        <label>Section</label>
+                    <div class="input-group" style="flex: 1;">
+                        <label>Section (सेक्शन)</label>
                         <input type="text" id="section" placeholder="सेक्शन" required>
                     </div>
                 </div>
+
                 <div class="input-group">
-                    <label>Subject</label>
+                    <label>Subject (विषय)</label>
                     <input type="text" id="subject" placeholder="विषय" required>
                 </div>
                 
-                <button type="submit" class="submit-btn">Send on WhatsApp</button>
+                <button type="submit" class="submit-btn">Send Details on WhatsApp</button>
             </form>
         </div>
     </div>
@@ -133,25 +250,29 @@
     <script>
         const modal = document.getElementById('orderModal');
 
+        // फॉर्म खोलने का फंक्शन
         function openModal() {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // पीछे का पेज स्क्रॉल होना बंद कर दे
         }
 
+        // फॉर्म बंद करने का फंक्शन
         function closeModal(event) {
             // अगर क्लोज़ बटन या बैकग्राउंड पर क्लिक किया है
-            if(event.target === modal || event.target.className === 'close-btn') {
+            if(event.target === modal || event.target.closest('.close-btn')) {
                 modal.classList.remove('active');
-                document.body.style.overflow = 'auto'; // स्क्रॉलिंग वापस चालू कर दे
+                document.body.style.overflow = ''; // स्क्रॉलिंग वापस चालू कर दे
             }
         }
 
+        // WhatsApp पर डेटा भेजने का फंक्शन
         function processOrder(event) {
-            event.preventDefault();
+            event.preventDefault(); // पेज रीफ्रेश होने से रोके
 
-            // अपना WhatsApp नंबर यहाँ डालें
+            // आपका दिया गया WhatsApp नंबर
             const phoneNumber = "918126026015"; 
 
+            // फॉर्म से वैल्यू लेना
             const designId = document.getElementById('designId').value.trim();
             const name = document.getElementById('name').value.trim();
             const school = document.getElementById('school').value.trim();
@@ -159,6 +280,7 @@
             const section = document.getElementById('section').value.trim();
             const subject = document.getElementById('subject').value.trim();
 
+            // WhatsApp मैसेज का फॉरमैट
             const message = `*Akkaprints - New Slip Order*\n\n` +
                             `*Design Number:* ${designId}\n` +
                             `*Name:* ${name}\n` +
@@ -168,12 +290,15 @@
                             `*Subject:* ${subject}\n\n` +
                             `_Please send photo_`;
 
+            // मैसेज को URL के लिए एन्कोड करना
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-            // WhatsApp खोलने के बाद पॉप-अप बंद कर दें
+            // WhatsApp खोलने के बाद पॉप-अप बंद कर दें और फॉर्म रिसेट कर दें
+            document.getElementById('orderForm').reset();
             closeModal({target: modal});
             
+            // नए टैब में WhatsApp खोलना
             window.open(whatsappUrl, '_blank');
         }
     </script>
