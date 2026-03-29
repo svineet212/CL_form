@@ -9,7 +9,7 @@
     
     <style>
         :root {
-            --primary: #25D366; /* WhatsApp Green */
+            --primary: #25D366; 
             --primary-dark: #128C7E;
             --bg: #f0f4f8;
             --text: #333;
@@ -25,10 +25,9 @@
         body { 
             background-color: #e5e5f7; 
             color: var(--text); 
-            padding-bottom: 90px; /* नीचे बटन के लिए पर्याप्त जगह */ 
+            padding-bottom: 90px; 
         }
 
-        /* Top Header */
         .header { 
             background: #fff; 
             padding: 15px; 
@@ -41,7 +40,6 @@
         .header h2 { font-size: 22px; color: #2c3e50; font-weight: 600; }
         .header p { font-size: 13px; color: #666; margin-top: 2px; }
 
-        /* Catalog Images Container */
         .catalog-container { 
             max-width: 600px; 
             margin: 0 auto; 
@@ -55,10 +53,9 @@
             border-radius: 8px; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
             display: block; 
-            background-color: #fff; /* इमेज लोड होने तक सफेद बैकग्राउंड */
+            background-color: #fff; 
         }
 
-        /* Sticky Bottom Bar */
         .bottom-bar {
             position: fixed; 
             bottom: 0; 
@@ -89,7 +86,6 @@
         .order-btn:hover { background: var(--primary-dark); }
         .order-btn:active { transform: scale(0.96); }
 
-        /* Modal (Pop-up Form) Styles */
         .modal-overlay {
             position: fixed; 
             top: 0; 
@@ -101,7 +97,7 @@
             justify-content: center; 
             align-items: flex-end; 
             z-index: 30;
-            backdrop-filter: blur(3px); /* पीछे का बैकग्राउंड थोड़ा ब्लर करने के लिए */
+            backdrop-filter: blur(3px); 
         }
         .modal-overlay.active { display: flex; }
 
@@ -144,7 +140,6 @@
             justify-content: center;
         }
 
-        /* Form Inputs */
         .input-group { margin-bottom: 15px; }
         .input-group label { 
             display: block; 
@@ -156,7 +151,7 @@
         .input-group input {
             width: 100%; 
             padding: 12px 15px; 
-            font-size: 16px; /* 16px मोबाइल में ऑटो-ज़ूम रोकता है */
+            font-size: 16px; 
             border: 1px solid #ddd;
             border-radius: 8px; 
             background: #fafafa; 
@@ -169,6 +164,17 @@
             box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.1);
         }
 
+        .photo-note {
+            font-size: 13px; 
+            color: #d35400; /* थोड़ा डार्क ऑरेंज कलर ताकि ध्यान जाए */
+            text-align: center; 
+            margin-bottom: 15px; 
+            font-weight: 500;
+            background-color: #fdf2e9;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
         .submit-btn {
             width: 100%; 
             background: var(--primary); 
@@ -179,7 +185,6 @@
             font-weight: 600; 
             border-radius: 8px; 
             cursor: pointer; 
-            margin-top: 10px;
             transition: background 0.3s;
         }
         .submit-btn:hover { background: var(--primary-dark); }
@@ -242,6 +247,10 @@
                     <input type="text" id="subject" placeholder="विषय" required>
                 </div>
                 
+                <div class="photo-note">
+                    📸 नोट: अगर आप स्लिप पर फोटो लगवाना चाहते हैं, तो WhatsApp पर अपनी डिटेल्स के साथ फोटो भी भेजें।
+                </div>
+
                 <button type="submit" class="submit-btn">Send Details on WhatsApp</button>
             </form>
         </div>
@@ -250,29 +259,23 @@
     <script>
         const modal = document.getElementById('orderModal');
 
-        // फॉर्म खोलने का फंक्शन
         function openModal() {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // पीछे का पेज स्क्रॉल होना बंद कर दे
+            document.body.style.overflow = 'hidden'; 
         }
 
-        // फॉर्म बंद करने का फंक्शन
         function closeModal(event) {
-            // अगर क्लोज़ बटन या बैकग्राउंड पर क्लिक किया है
             if(event.target === modal || event.target.closest('.close-btn')) {
                 modal.classList.remove('active');
-                document.body.style.overflow = ''; // स्क्रॉलिंग वापस चालू कर दे
+                document.body.style.overflow = ''; 
             }
         }
 
-        // WhatsApp पर डेटा भेजने का फंक्शन
         function processOrder(event) {
-            event.preventDefault(); // पेज रीफ्रेश होने से रोके
+            event.preventDefault(); 
 
-            // आपका दिया गया WhatsApp नंबर
             const phoneNumber = "918126026015"; 
 
-            // फॉर्म से वैल्यू लेना
             const designId = document.getElementById('designId').value.trim();
             const name = document.getElementById('name').value.trim();
             const school = document.getElementById('school').value.trim();
@@ -280,7 +283,7 @@
             const section = document.getElementById('section').value.trim();
             const subject = document.getElementById('subject').value.trim();
 
-            // WhatsApp मैसेज का फॉरमैट
+            // WhatsApp मैसेज में फोटो वाली लाइन जोड़ी गई है
             const message = `*Akkaprints - New Slip Order*\n\n` +
                             `*Design Number:* ${designId}\n` +
                             `*Name:* ${name}\n` +
@@ -288,17 +291,14 @@
                             `*Class:* ${classVal}\n` +
                             `*Section:* ${section}\n` +
                             `*Subject:* ${subject}\n\n` +
-                            `_Please send photo_`;
+                            `_Note: Agar slip par photo lagwana hai, toh please is message ke sath photo bhi bhej dein._`;
 
-            // मैसेज को URL के लिए एन्कोड करना
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-            // WhatsApp खोलने के बाद पॉप-अप बंद कर दें और फॉर्म रिसेट कर दें
             document.getElementById('orderForm').reset();
             closeModal({target: modal});
             
-            // नए टैब में WhatsApp खोलना
             window.open(whatsappUrl, '_blank');
         }
     </script>
